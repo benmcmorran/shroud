@@ -1,0 +1,26 @@
+name: Continuous integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Enable developer command prompt
+      uses: ilammy/msvc-dev-cmd@v1.9.0
+      with:
+        arch: x64
+    - name: Configure CMake
+      run: set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT% && cmake --preset=release
+    - name: Build
+      run: cmake --build --preset=release
+    # For now this is just a very crude smoke test.
+    - name: Test
+      working-directory: ${{github.workspace}}/build/release/src
+      run: tracebld cmd /c "type ..\..\..\README.md"

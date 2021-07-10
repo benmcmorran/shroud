@@ -1,0 +1,54 @@
+{
+    "version": 2,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "build/${presetName}",
+            "generator": "Ninja",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                    "type": "FILEPATH"
+                },
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "debug",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "configurePreset": "debug",
+            "name": "debug"
+        },
+        {
+            "configurePreset": "release",
+            "name": "release"
+        }
+    ]
+}
