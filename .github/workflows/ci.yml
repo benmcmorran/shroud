@@ -26,4 +26,4 @@ jobs:
     # For now this is just a very crude smoke test.
     - name: Test
       working-directory: ${{github.workspace}}/build/release/src
-      run: tracebld cmd /c "type ..\..\..\README.md"
+      run: .\tracebld.exe cmd /c "type ..\..\..\README.md"
