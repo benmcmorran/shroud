@@ -3,6 +3,7 @@
     "name": "shroud",
     "version": "0.1.0",
     "dependencies": [
-        "detours"
+        "detours",
+        "simdjson"
     ]
 }

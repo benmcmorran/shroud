@@ -22,6 +22,9 @@
 #include <strsafe.h>
 #pragma warning(pop)
 #include "detours/detours.h"
+#include <string>
+#include <map>
+#include "simdjson.h"
 #include "tracebld.h"
 
 #define PULONG_PTR          PVOID
@@ -63,6 +66,8 @@ static LONG s_nChildCnt = 0;
 static CRITICAL_SECTION s_csPipe;                       // Guards access to hPipe.
 static HANDLE           s_hPipe = INVALID_HANDLE_VALUE;
 static TBLOG_MESSAGE    s_rMessage;
+
+static std::map<std::wstring, std::wstring> s_PathMap;
 
 // Logging Functions.
 //
@@ -2883,6 +2888,22 @@ BOOL WINAPI Mine_CreateDirectoryExW(LPCWSTR a0,
     return rv;
 }
 
+LPCWSTR MapFile(LPCWSTR path) {
+    // TODO: quick and dirty conversion to narrow
+    auto widestr = std::wstring(path);
+    auto narrowstr = std::string(widestr.begin(), widestr.end());
+    std::cout << "[shroud] Attempting to map " << narrowstr << std::endl;
+
+    auto result = s_PathMap.find(path);
+    if (result != s_PathMap.end())
+    {
+        std::cout << "[shroud] Mapping path" << std::endl;
+        return result->second.c_str();
+    }
+
+    return path;
+}
+
 HANDLE WINAPI Mine_CreateFileW(LPCWSTR a0,
                                DWORD access,
                                DWORD share,
@@ -2894,8 +2915,8 @@ HANDLE WINAPI Mine_CreateFileW(LPCWSTR a0,
     /* int nIndent = */ EnterFunc();
     HANDLE rv = 0;
     __try {
-        LPCWSTR newPath = wcscmp(a0, L"C:\\dev\\detours\\foo.txt") == 0 ? L"C:\\dev\\detours\\bar.txt" : a0;
-        rv = Real_CreateFileW(newPath, access, share, a3, create, flags, a6);
+        auto path = MapFile(a0);
+        rv = Real_CreateFileW(path, access, share, a3, create, flags, a6);
     } __finally {
         ExitFunc();
 #if 0
@@ -4009,6 +4030,25 @@ BOOL ThreadDetach(HMODULE hDll)
     return TRUE;
 }
 
+void LoadPathMapping(LPCSTR szMapFile)
+{
+    std::cout << "Parsing " << szMapFile << std::endl;
+
+    using namespace simdjson;
+    auto parser = ondemand::parser();
+    auto json = padded_string::load(szMapFile);
+    auto document = parser.iterate(json);
+    auto paths = ondemand::object(document["paths"]);
+    
+    for (auto pair : paths)
+    {
+        auto key = std::string(std::string_view(pair.unescaped_key()));
+        auto value = std::string(std::string_view(pair.value()));
+        // TODO: this is a hack that will only work for ASCII
+        s_PathMap[std::wstring(key.begin(), key.end())] = std::wstring(value.begin(), value.end());
+    }
+}
+
 BOOL ProcessAttach(HMODULE hDll)
 {
     InitializeCriticalSection(&s_csPipe);
@@ -4056,6 +4096,11 @@ BOOL ProcessAttach(HMODULE hDll)
     LoadStdHandleName(STD_OUTPUT_HANDLE, s_Payload.wzStdout, s_Payload.fStdoutAppend);
     LoadStdHandleName(STD_ERROR_HANDLE, s_Payload.wzStderr, s_Payload.fStderrAppend);
     s_nTraceProcessId = s_Payload.nTraceProcessId;
+
+    if (*s_Payload.szMapFile)
+    {
+        LoadPathMapping(s_Payload.szMapFile);
+    }
 
     GetModuleFileNameA(s_hInst, s_szDllPath, ARRAYSIZE(s_szDllPath));
 

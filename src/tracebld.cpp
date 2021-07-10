@@ -68,6 +68,7 @@ typedef struct _CLIENT : OVERLAPPED
 //////////////////////////////////////////////////////////////////////////////
 //
 CHAR        s_szLogFile[MAX_PATH];
+CHAR        s_szMapFile[MAX_PATH] = { 0 };
 CHAR        s_szPipe[MAX_PATH];
 LONG        s_nActiveClients = 0;
 LONG        s_nTotalClients = 0;
@@ -424,6 +425,10 @@ DWORD main(int argc, char **argv)
             s_fVerbose = TRUE;
             break;
 
+          case 'm':                                 // Map
+            StringCchCopyA(s_szMapFile, ARRAYSIZE(s_szMapFile), argp);
+            break;
+
           case '?':                                 // Help.
             fNeedHelp = TRUE;
             break;
@@ -536,6 +541,7 @@ DWORD main(int argc, char **argv)
     s_Payload.nTraceProcessId = GetCurrentProcessId();
     s_Payload.nGeneology = 1;
     s_Payload.rGeneology[0] = 0;
+    StringCchCopyA(s_Payload.szMapFile, ARRAYSIZE(s_Payload.szMapFile), s_szMapFile);
     StringCchCopyW(s_Payload.wzStdin, ARRAYSIZE(s_Payload.wzStdin), L"\\\\.\\CONIN$");
     StringCchCopyW(s_Payload.wzStdout, ARRAYSIZE(s_Payload.wzStdout), L"\\\\.\\CONOUT$");
     StringCchCopyW(s_Payload.wzStderr, ARRAYSIZE(s_Payload.wzStderr), L"\\\\.\\CONOUT$");
