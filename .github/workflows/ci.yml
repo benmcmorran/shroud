@@ -23,6 +23,13 @@ jobs:
         VCPKG_ROOT: C:\vcpkg
     - name: Build
       run: cmake --build --preset=release
+    - name: Install
+      run: cmake --build --preset=release --target install
     - name: Test
       working-directory: ${{github.workspace}}/test
       run: .\test.ps1
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: ${{github.workspace}}/out/install/release

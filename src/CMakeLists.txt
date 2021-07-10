@@ -14,3 +14,5 @@ set_target_properties(trcbld64 PROPERTIES
 target_link_libraries(trcbld64 PRIVATE simdjson::simdjson)
 
 add_executable(tracebld tracebld.cpp tracebld.h)
+
+install(TARGETS trcbld64 tracebld)
