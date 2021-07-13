@@ -389,6 +389,9 @@ DWORD main(int argc, char **argv)
     GetSystemTimeAsFileTime((FILETIME *)&s_llStartTime);
     StringCchPrintfA(s_szPipe, ARRAYSIZE(s_szPipe), "%s.%d", TBLOG_PIPE_NAME, GetCurrentProcessId());
 
+    // Default to no logging
+    StringCchCopyA(s_szLogFile, ARRAYSIZE(s_szLogFile), "NUL");
+
     int arg = 1;
     for (; arg < argc && (argv[arg][0] == '-' || argv[arg][0] == '/'); arg++) {
         CHAR *argn = argv[arg] + 1;
@@ -451,6 +454,8 @@ DWORD main(int argc, char **argv)
                "    tracebld [options] command {command arguments}\n"
                "Options:\n"
                "    /o:file    Log all events to the output files.\n"
+               "    /m:file    Redirect file access. File should be JSON with format\n"
+               "               { \"paths\": { <source>: <dest>, ... } }"
                "    /?         Display this help message.\n"
                "Summary:\n"
                "    Runs the build commands and figures out which files have dependencies..\n"

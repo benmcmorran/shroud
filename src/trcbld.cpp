@@ -2892,12 +2892,12 @@ LPCWSTR MapFile(LPCWSTR path) {
     // TODO: quick and dirty conversion to narrow
     auto widestr = std::wstring(path);
     auto narrowstr = std::string(widestr.begin(), widestr.end());
-    std::cout << "[shroud] Attempting to map " << narrowstr << std::endl;
 
     auto result = s_PathMap.find(path);
     if (result != s_PathMap.end())
     {
-        std::cout << "[shroud] Mapping path" << std::endl;
+        Print("<!--Mapping %le to %le -->\n",
+                  narrowstr.c_str(), result->second.c_str());
         return result->second.c_str();
     }
 
@@ -4033,8 +4033,6 @@ BOOL ThreadDetach(HMODULE hDll)
 
 void LoadPathMapping(LPCSTR szPathMap)
 {
-    std::cout << "Parsing " << szPathMap << std::endl;
-
     using namespace simdjson;
     auto parser = ondemand::parser();
     auto json = padded_string(std::string(szPathMap));
