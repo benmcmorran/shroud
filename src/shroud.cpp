@@ -19,7 +19,7 @@
 #include <sstream>
 #include <fstream>
 #include "detours/detours.h"
-#include "tracebld.h"
+#include "shroud.h"
 
 #if (_MSC_VER < 1299)
 typedef ULONG * PULONG_PTR;
@@ -451,14 +451,14 @@ DWORD main(int argc, char **argv)
 
     if (fNeedHelp) {
         printf("Usage:\n"
-               "    tracebld [options] command {command arguments}\n"
+               "    shroud [options] command {command arguments}\n"
                "Options:\n"
                "    /o:file    Log all events to the output files.\n"
                "    /m:file    Redirect file access. File should be JSON with format\n"
                "               { \"paths\": { <source>: <dest>, ... } }"
                "    /?         Display this help message.\n"
                "Summary:\n"
-               "    Runs the build commands and figures out which files have dependencies..\n"
+               "    Redirects filesystem access based on the mapping file.\n"
                "\n");
         exit(9001);
     }
@@ -494,7 +494,7 @@ DWORD main(int argc, char **argv)
     }
 
     StringCchCopyA(pszFilePart, szExePath + ARRAYSIZE(szExePath) - pszFilePart,
-             "trcbld" DETOURS_STRINGIFY(DETOURS_BITS) ".dll");
+             "shroudlib" DETOURS_STRINGIFY(DETOURS_BITS) ".dll");
     StringCchCopyA(szDllPath, ARRAYSIZE(szDllPath), szExePath);
 
     //////////////////////////////////////////////////////////////////////////

@@ -12,18 +12,18 @@ else()
     set(BITNESS 32)
 endif()
 
-add_library("trcbld${BITNESS}" SHARED trcbld.cpp)
-set_target_properties("trcbld${BITNESS}" PROPERTIES
+add_library("shroudlib${BITNESS}" SHARED shroudlib.cpp)
+set_target_properties("shroudlib${BITNESS}" PROPERTIES
     LINK_FLAGS /EXPORT:DetourFinishHelperProcess,@1,NONAME
     CXX_STANDARD 17
     MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-target_link_libraries("trcbld${BITNESS}" PRIVATE simdjson::simdjson)
+target_link_libraries("shroudlib${BITNESS}" PRIVATE simdjson::simdjson)
 
-add_executable("tracebld${BITNESS}" tracebld.cpp tracebld.h)
+add_executable("shroud${BITNESS}" shroud.cpp shroud.h)
 
-install(TARGETS "trcbld${BITNESS}" "tracebld${BITNESS}")
+install(TARGETS "shroud${BITNESS}" "shroudlib${BITNESS}")
 
 if(BITNESS STREQUAL 64)
     set(X86PATH "../out/build/x86-$<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>/src")
-    install(FILES "${X86PATH}/tracebld32.exe" "${X86PATH}/trcbld32.dll" TYPE BIN)
+    install(FILES "${X86PATH}/shroud32.exe" "${X86PATH}/shroudlib32.dll" TYPE BIN)
 endif()
