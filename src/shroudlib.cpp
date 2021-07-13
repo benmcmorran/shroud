@@ -2889,15 +2889,11 @@ BOOL WINAPI Mine_CreateDirectoryExW(LPCWSTR a0,
 }
 
 LPCWSTR MapFile(LPCWSTR path) {
-    // TODO: quick and dirty conversion to narrow
-    auto widestr = std::wstring(path);
-    auto narrowstr = std::string(widestr.begin(), widestr.end());
-
     auto result = s_PathMap.find(path);
     if (result != s_PathMap.end())
     {
         Print("<!--Mapping %le to %le -->\n",
-                  narrowstr.c_str(), result->second.c_str());
+                  path, result->second.c_str());
         return result->second.c_str();
     }
 
