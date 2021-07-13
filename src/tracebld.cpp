@@ -16,6 +16,8 @@
 #endif
 #include <strsafe.h>
 #pragma warning(pop)
+#include <sstream>
+#include <fstream>
 #include "detours/detours.h"
 #include "tracebld.h"
 
@@ -541,7 +543,17 @@ DWORD main(int argc, char **argv)
     s_Payload.nTraceProcessId = GetCurrentProcessId();
     s_Payload.nGeneology = 1;
     s_Payload.rGeneology[0] = 0;
-    StringCchCopyA(s_Payload.szMapFile, ARRAYSIZE(s_Payload.szMapFile), s_szMapFile);
+
+    if (*s_szMapFile) {
+        std::ifstream t(s_szMapFile);
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+        auto result = buffer.str();
+        StringCchCopyA(s_Payload.szPathMap, result.length(), result.c_str());
+    } else {
+        s_Payload.szPathMap[0] = 0;
+    }
+
     StringCchCopyW(s_Payload.wzStdin, ARRAYSIZE(s_Payload.wzStdin), L"\\\\.\\CONIN$");
     StringCchCopyW(s_Payload.wzStdout, ARRAYSIZE(s_Payload.wzStdout), L"\\\\.\\CONOUT$");
     StringCchCopyW(s_Payload.wzStderr, ARRAYSIZE(s_Payload.wzStderr), L"\\\\.\\CONOUT$");

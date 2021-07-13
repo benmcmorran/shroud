@@ -2919,7 +2919,8 @@ HANDLE WINAPI Mine_CreateFileW(LPCWSTR a0,
         rv = Real_CreateFileW(path, access, share, a3, create, flags, a6);
     } __finally {
         ExitFunc();
-#if 0
+        // TODO: have better logging than just changing enabling this block
+#if 1
             Print("<!-- CreateFileW(%le, ac=%08x, cr=%08x, fl=%08x -->\n",
                   a0,
                   access,
@@ -4030,13 +4031,13 @@ BOOL ThreadDetach(HMODULE hDll)
     return TRUE;
 }
 
-void LoadPathMapping(LPCSTR szMapFile)
+void LoadPathMapping(LPCSTR szPathMap)
 {
-    std::cout << "Parsing " << szMapFile << std::endl;
+    std::cout << "Parsing " << szPathMap << std::endl;
 
     using namespace simdjson;
     auto parser = ondemand::parser();
-    auto json = padded_string::load(szMapFile);
+    auto json = padded_string(std::string(szPathMap));
     auto document = parser.iterate(json);
     auto paths = ondemand::object(document["paths"]);
     
@@ -4097,9 +4098,9 @@ BOOL ProcessAttach(HMODULE hDll)
     LoadStdHandleName(STD_ERROR_HANDLE, s_Payload.wzStderr, s_Payload.fStderrAppend);
     s_nTraceProcessId = s_Payload.nTraceProcessId;
 
-    if (*s_Payload.szMapFile)
+    if (*s_Payload.szPathMap)
     {
-        LoadPathMapping(s_Payload.szMapFile);
+        LoadPathMapping(s_Payload.szPathMap);
     }
 
     GetModuleFileNameA(s_hInst, s_szDllPath, ARRAYSIZE(s_szDllPath));

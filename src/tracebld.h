@@ -44,7 +44,8 @@ typedef struct _TBLOG_PAYLOAD
     BOOL        fStderrAppend;
     WCHAR       wzzDrop[1024];  // Like an environment: zero terminated strings with a last zero.
     WCHAR       wzzEnvironment[32768];
-    CHAR        szMapFile[MAX_PATH];
+    // TODO: this might be too small in some cases
+    CHAR        szPathMap[32768];
 } TBLOG_PAYLOAD, *PTBLOG_PAYLOAD;
 
 // Shared state payload guid.
